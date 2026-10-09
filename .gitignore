@@ -1,0 +1,50 @@
+# Python and local environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv
+venv/
+env/
+
+# Credentials and local configuration
+.env
+.env.*
+!.env.example
+.aws/
+*.pem
+*.key
+.claude/
+.codex/
+.agents/
+
+# Machine-specific and course materials
+mpcs_workstations.md
+Project information.docx
+
+# Raw annotations, downloaded data, and generated outputs
+s6_annotation.csv
+data/
+datasets/
+results/
+outputs/
+checkpoints/
+models/
+Health-ORSC-Bench/
+combo_atoms_*.json
+combo_results_*.json
+placement_atoms_*.json
+placement_results_*.json
+health_orsc_results.json
+summary.json
+summary.csv
+*.log
+*.pid
+*.safetensors
+*.pt
+*.pth
+
+# Editor / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

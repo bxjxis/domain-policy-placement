@@ -4,7 +4,7 @@ A small-scale trustworthy AI research project on policy placement in safety pipe
 
 **Research question:** When the same domain policy is supplied to the answering model, the input guard, or the output guard, which placement gives users more compliant, useful answers while limiting harmful assistance?
 
-**Status:** Research in progress. This repository contains pilot code for defense stacking, analysis tools, an annotation rubric, and a draft medical policy. The policy-placement experiment described below is planned; final results are not yet available.
+**Status:** Pilot stage. The policy-placement harness is implemented and self-checked; a 15-pair pipeline pilot and a 25-sample targeted guard check have been run. The financial data, judge script and full experiment are pending. No final results are claimed.
 
 ## Motivation
 
@@ -62,6 +62,22 @@ The intended contribution is a controlled comparison of policy placement, an ann
 
 Relevant prior work includes [FinGuard](https://arxiv.org/abs/2605.29427), [The Llama 3 Herd of Models](https://arxiv.org/abs/2407.21783), and prior work on [defense stacking and refusal attribution](https://arxiv.org/abs/2608.28327). The precise overlap with related policy-placement studies remains under review.
 
+## Pilot findings so far (preliminary)
+
+**Implementation findings** (checked directly; they affect how the experiment must be run):
+
+- The Hugging Face chat template of `meta-llama/Llama-Guard-3-8B` (revision `7327bd9f`) hardcodes the S1–S14 category names and silently ignores a `categories=` argument. `placement_harness.py` therefore builds guard prompts itself; its default arm reproduces the official template exactly (string and token ids).
+- Re-tokenizing a rendered chat template with default special tokens added a duplicate start-of-text token for `Llama-3.1-8B-Instruct` (not for Qwen or Llama Guard). Earlier Llama results from `combo_harness.py` used that input and need to be re-checked.
+- Llama Guard emits a blank line before `safe`/`unsafe`; verdict scores must be read at the verdict token, not the first generated token.
+
+**Behavioural observations** (small, selected samples; one annotator; keyword refusal detection; treat as hypotheses, not results):
+
+- In a 15-pair medical pilot with both answering models, adding the policy to the Llama Guard prompt changed few verdicts. Under the policy arm the guard often reported implausible categories, and it passed two harmful Llama answers framed as "educational" or a "simulation".
+- On 25 boundary samples previously flagged S6, compared with annotator A's input decisions: the policy-prompted **input** guard rescued none of the 11 default false blocks (agreement 11/25 default vs 9/25 policy). The policy-prompted **output** guard passed 4 answers that A allowed and the default blocked, but also passed one framed harmful answer that A would block.
+- Many pilot answers hit the 200-token generation cap (Qwen 42/60, Llama 27/60). The main runs will use a higher cap.
+
+**Next steps:** second annotator and a decision on whether a bare name counts as an identifiable person (most annotation disagreements); judge script for refusal / compliance / minimum answer; higher generation cap and a larger medical run; financial policy and data.
+
 ## Repository guide
 
 | File | Purpose |
@@ -71,11 +87,14 @@ Relevant prior work includes [FinGuard](https://arxiv.org/abs/2605.29427), [The 
 | `summarizer_usage.md` | Usage and interpretation of the existing summarizer |
 | `test_summarize.py` | Synthetic-data tests for result reconstruction and summarization |
 | `s6_rubric.md` | Existing medical annotation rubric; answer-adequacy assessment will be added for the main experiment |
-| `policies/medical.md` | Draft medical deployment policy and guard-category mapping |
+| `policies/medical.md` | Draft medical deployment policy, guard-category mapping and template-check notes |
+| `placement_harness.py` | Policy-placement harness (M/I/O switches, 8 configurations + 2 no-guard references); `--selfcheck` runs without a GPU |
+| `s6_targeted.py` | Targeted default-vs-policy guard check on the 25 review samples |
+| `medical_policy_review_guide.md`, `medical_policy_review_policy_34cb026c.md` | Annotation instructions and the policy snapshot the annotators use |
 | `health_orsc.py`, `guard_classify.py`, `spike_orr.py`, `extract_s6.py` | Earlier pilot and inspection scripts |
 | `project_plan.md` | Earlier planning document; some sections describe previous scope and should be read with that distinction |
 
-The placement harness, finance policy, judge script, and final evaluation set are pending. This README describes the current research direction.
+The finance policy, judge script, and final evaluation set are pending. Annotation files and model outputs are kept out of this public repository: they contain upstream dataset prompts and model-generated text, and the annotation is still in progress. A labels-only release may follow once annotation is frozen and upstream licenses are checked.
 
 ## Using the existing pilot tools
 

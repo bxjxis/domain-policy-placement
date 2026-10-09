@@ -23,6 +23,11 @@ Project information.docx
 
 # Raw annotations, downloaded data, and generated outputs
 s6_annotation.csv
+medical_policy_review_25.csv
+medical_policy_review_package.zip
+medical_policy_review_25.full.csv
+claude_reference_labels.csv
+s6_targeted_results.json
 data/
 datasets/
 results/
